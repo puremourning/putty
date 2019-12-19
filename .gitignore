@@ -100,6 +100,16 @@
 /icons/*.icns
 /icons/*.xpm
 /icons/*.c
+/unix/cgtest
+/unix/fuzzterm
+/unix/osxlaunch
+/unix/pageant
+/unix/ptermapp
+/unix/puttyapp
+/unix/testcrypt
+/unix/testsc
+/unix/testzlib
+/unix/uppity
 /unix/Makefile.gtk
 /unix/Makefile.ux
 /unix/Makefile.local
