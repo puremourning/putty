@@ -6627,6 +6627,10 @@ void term_mouse(Terminal *term, Mouse_Button braw, Mouse_Button bcooked,
                 if (term->xterm_mouse < 3)
                     return;
                 encstate += 0x20; // motion indicator
+
+                // TODO: Should we:
+                //  - set term->mouse_is_down
+                //  - send "M" (release) on the SGR version of the message ?
                 break;
               case MA_RELEASE:
                 /* If multiple extensions are enabled, the xterm 1006 is used, so it's okay to check for only that */
@@ -6651,6 +6655,7 @@ void term_mouse(Terminal *term, Mouse_Button braw, Mouse_Button bcooked,
 
             /* Check the extensions in decreasing order of preference. Encoding the release event above assumes that 1006 comes first. */
             if (term->xterm_extended_mouse) {
+                // TODO: What should be the last character for MA_MOVE ?
                 len = sprintf(abuf, "\033[<%d;%d;%d%c", encstate, c, r, a == MA_RELEASE ? 'm' : 'M');
             } else if (term->urxvt_extended_mouse) {
                 len = sprintf(abuf, "\033[%d;%d;%dM", encstate + 32, c, r);
