@@ -1335,6 +1335,8 @@ static void power_on(Terminal *term, bool clear)
     term->xterm_mouse = 0;
     term->xterm_extended_mouse = false;
     term->urxvt_extended_mouse = false;
+    term->raw_mouse_reported_x = 0;
+    term->raw_mouse_reported_y = 0;
     win_set_raw_mouse_mode(term->win, false);
     term->bracketed_paste = false;
     term->srm_echo = false;
@@ -6626,6 +6628,15 @@ void term_mouse(Terminal *term, Mouse_Button braw, Mouse_Button bcooked,
                 assert( braw == MBT_NOTHING && bcooked == MBT_NOTHING  );
                 if (term->xterm_mouse < 3)
                     return;
+
+                // TODO: 0-based or 1-based ? Store selpoint in Terminal ?
+                if (selpoint.x == term->raw_mouse_reported_x &&
+                    selpoint.y == term->raw_mouse_reported_y)
+                    return;
+
+                term->raw_mouse_reported_x = x;
+                term->raw_mouse_reported_y = y;
+
                 encstate += 0x20; // motion indicator
 
                 // TODO: Should we:
