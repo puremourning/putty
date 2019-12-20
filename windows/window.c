@@ -2727,6 +2727,8 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
          */
         noise_ultralight(NOISE_SOURCE_MOUSEPOS, lParam);
 
+        // TODO: Handle the mouse move when "Any-event tracking" (1003 DECSET)
+        // is enabled and no button pressed.
         if (wParam & (MK_LBUTTON | MK_MBUTTON | MK_RBUTTON) &&
             GetCapture() == hwnd) {
             Mouse_Button b;

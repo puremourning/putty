@@ -2682,6 +2682,10 @@ static void toggle_mode(Terminal *term, int mode, int query, bool state)
             term->xterm_mouse = state ? 2 : 0;
             win_set_raw_mouse_mode(term->win, state);
             break;
+          case 1003:                   /* xterm mouse any-event tracking */
+            term->xterm_mouse = state ? 3 : 0;
+            win_set_raw_mouse_mode(term->win, state);
+            break;
           case 1006:                   /* xterm extended mouse */
             term->xterm_extended_mouse = state;
             break;
@@ -6502,6 +6506,14 @@ void term_mouse(Terminal *term, Mouse_Button braw, Mouse_Button bcooked,
                       !(term->mouse_override && shift));
     int default_seltype;
 
+    //   Don't do anything if mouse movement events weren't requested;
+    //   Note: return early to avoid doing all of this code on every mouse move
+    //   event only to throw it away. ?
+    //
+    if (a == MA_MOVE && (!raw_mouse || term->xterm_mouse < 3)) {
+        return; 
+    }
+
     if (y < 0) {
         y = 0;
         if (a == MA_DRAG && !raw_mouse)
@@ -6560,6 +6572,7 @@ void term_mouse(Terminal *term, Mouse_Button braw, Mouse_Button bcooked,
      */
     if (raw_mouse &&
         (term->selstate != ABOUT_TO) && (term->selstate != DRAGGING)) {
+        // handle raw_mouse output
         int encstate = 0, r, c;
         bool wheel;
         char abuf[32];
@@ -6588,6 +6601,11 @@ void term_mouse(Terminal *term, Mouse_Button braw, Mouse_Button bcooked,
                 encstate = 0x41;
                 wheel = true;
                 break;
+              case MBT_NOTHING:
+                assert( a == MA_MOVE );
+                encstate = 0x03; // release; no buttons pressed
+                wheel = false;
+                break;
               default:
                 return;
             }
@@ -6602,7 +6620,13 @@ void term_mouse(Terminal *term, Mouse_Button braw, Mouse_Button bcooked,
               case MA_DRAG:
                 if (term->xterm_mouse == 1)
                     return;
-                encstate += 0x20;
+                encstate += 0x20; // motion indicator
+                break;
+              case MA_MOVE:    //mouse move without buttons
+                assert( braw == MBT_NOTHING && bcooked == MBT_NOTHING  );
+                if (term->xterm_mouse < 3)
+                    return;
+                encstate += 0x20; // motion indicator
                 break;
               case MA_RELEASE:
                 /* If multiple extensions are enabled, the xterm 1006 is used, so it's okay to check for only that */
