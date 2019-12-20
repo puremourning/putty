@@ -1,0 +1,19 @@
+{
+    "configurations": {
+        "run": {
+            "adapter": "vscode-cpptools",
+            "configuration": {
+                "request": "launch",
+                "type": "cppdbg",
+                "program": "${workspaceRoot}/putty",
+                "cwd": "${workspaceRoot}",
+                "MIMode": "lldb",
+                "stopOnEntry": true,
+                "stopAtEntry": true,
+                "env": {
+                    "DISPLAY": "${DISPLAY}"
+                }
+            }
+        }
+    }
+}
